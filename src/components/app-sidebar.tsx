@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   SidebarHeader,
   SidebarContent,
@@ -19,9 +19,19 @@ import {
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Button } from './ui/button';
+import { useAuth } from '@/contexts/auth-context';
+import { auth } from '@/lib/firebase/config';
+import { signOut } from 'firebase/auth';
 
 export default function AppSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    router.push('/login');
+  };
 
   const menuItems = [
     {
@@ -63,21 +73,21 @@ export default function AppSidebar() {
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter className="p-2">
-        <div className="flex items-center gap-2 p-2 rounded-md bg-muted">
-           <Avatar className="h-9 w-9">
-            <AvatarImage src="https://placehold.co/36x36" alt="User" data-ai-hint="profile avatar" />
-            <AvatarFallback>U</AvatarFallback>
-          </Avatar>
-          <div className="flex flex-col">
-            <span className="text-sm font-medium">User</span>
-            <span className="text-xs text-muted-foreground">user@example.com</span>
-          </div>
-          <Button variant="ghost" size="icon" className="ml-auto" asChild>
-            <Link href="/login">
+        {user && (
+          <div className="flex items-center gap-2 p-2 rounded-md bg-muted">
+            <Avatar className="h-9 w-9">
+              <AvatarImage src={user.photoURL || "https://placehold.co/36x36"} alt="User" data-ai-hint="profile avatar" />
+              <AvatarFallback>{user.email?.[0].toUpperCase() || 'U'}</AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col">
+              <span className="text-sm font-medium">{user.displayName || 'User'}</span>
+              <span className="text-xs text-muted-foreground">{user.email}</span>
+            </div>
+            <Button variant="ghost" size="icon" className="ml-auto" onClick={handleLogout}>
               <LogOut className="h-4 w-4" />
-            </Link>
-          </Button>
-        </div>
+            </Button>
+          </div>
+        )}
       </SidebarFooter>
     </>
   );
