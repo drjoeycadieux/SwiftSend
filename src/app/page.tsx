@@ -16,7 +16,7 @@ export default function Home() {
             <Link href="/login">Login</Link>
           </Button>
           <Button asChild>
-            <Link href="/signup">Sign Up</Link>
+            <Link href="/signup">Register</Link>
           </Button>
         </nav>
       </header>
